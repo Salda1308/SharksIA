@@ -12,6 +12,7 @@ export default function ImagePicker({ onSelect, onClose }: Props) {
   const [source, setSource] = useState<"pexels" | "pixabay">("pexels");
   const [results, setResults] = useState<ImageResult[]>([]);
   const [searching, setSearching] = useState(false);
+  const [uploadError, setUploadError] = useState("");
 
   const search = async () => {
     if (!query.trim()) return;
@@ -25,10 +26,16 @@ export default function ImagePicker({ onSelect, onClose }: Props) {
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-    const res = await api.images.upload(file) as { thumb_url: string };
-    onSelect(`${API_URL}${res.thumb_url}`);
-    onClose();
+    setUploadError("");
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+      const res = await api.images.upload(file) as { thumb_url?: string };
+      if (!res.thumb_url) throw new Error("Respuesta inválida del servidor");
+      onSelect(`${API_URL}${res.thumb_url}`);
+      onClose();
+    } catch {
+      setUploadError("Error al subir la imagen. Intenta de nuevo.");
+    }
   };
 
   return (
@@ -60,6 +67,7 @@ export default function ImagePicker({ onSelect, onClose }: Props) {
           </div>
           <input type="file" accept="image/*" className="hidden" onChange={handleUpload} />
         </label>
+        {uploadError && <p className="text-red-500 text-sm mt-2">{uploadError}</p>}
 
         <div className="grid grid-cols-3 gap-2">
           {results.map(img => (

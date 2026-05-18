@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import { api, Design, Slide } from "@/lib/api";
 import { useParams, useRouter } from "next/navigation";
 import SlideEditor from "@/components/SlideEditor";
@@ -11,32 +11,54 @@ export default function EditDesignPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [design, setDesign] = useState<Design | null>(null);
+  const [slides, setSlides] = useState<Slide[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [rendering, setRendering] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => { api.designs.get(id).then(setDesign); }, [id]);
+  useEffect(() => {
+    api.designs.get(id)
+      .then(d => { setDesign(d); setSlides(d.slides ?? []); })
+      .catch(() => setError("No se pudo cargar el diseño."));
+  }, [id]);
 
-  const currentSlide = design?.slides?.[currentIdx];
+  const currentSlide = slides[currentIdx];
 
-  const updateSlide = useCallback(async (updated: Slide) => {
-    if (!design?.slides) return;
-    const newSlides = design.slides.map((s, i) => i === currentIdx ? updated : s);
-    setSaving(true);
-    try {
-      const d = await api.designs.updateSlides(id, newSlides);
-      setDesign(d);
-    } finally { setSaving(false); }
-  }, [design, currentIdx, id]);
+  const handleSlideChange = (updated: Slide) => {
+    const newSlides = slides.map((s, i) => i === currentIdx ? updated : s);
+    setSlides(newSlides);
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(async () => {
+      setSaving(true);
+      try {
+        const d = await api.designs.updateSlides(id, newSlides);
+        setDesign(d);
+        setSlides(d.slides ?? newSlides);
+      } catch {
+        setError("Error al guardar.");
+      } finally {
+        setSaving(false);
+      }
+    }, 800);
+  };
 
   const render = async () => {
     setRendering(true);
-    try { await api.designs.render(id); }
-    finally { setRendering(false); }
+    setError("");
+    try {
+      const d = await api.designs.render(id);
+      setDesign(d);
+    } catch {
+      setError("Error al renderizar.");
+    } finally {
+      setRendering(false);
+    }
   };
 
+  if (error && !design) return <div className="p-8 text-red-500">{error}</div>;
   if (!design) return <div className="p-8">Cargando diseño...</div>;
-  const slides = design.slides ?? [];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -45,6 +67,7 @@ export default function EditDesignPage() {
           <button onClick={() => router.push("/dashboard")} className="text-gray-400 hover:text-gray-600">←</button>
           <span className="font-medium">{design.title ?? "Sin título"}</span>
           {saving && <span className="text-xs text-gray-400">Guardando...</span>}
+          {error && <span className="text-xs text-red-500">{error}</span>}
         </div>
         <div className="flex gap-2">
           <button onClick={render} disabled={rendering}
@@ -87,7 +110,7 @@ export default function EditDesignPage() {
             ))}
           </div>
           {currentSlide && (
-            <SlideEditor slide={currentSlide} onChange={updateSlide} />
+            <SlideEditor slide={currentSlide} onChange={handleSlideChange} />
           )}
         </div>
       </div>
