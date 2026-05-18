@@ -7,10 +7,14 @@ import { useRouter, useParams } from "next/navigation";
 export default function EditCompanyPage() {
   const { id } = useParams<{ id: string }>();
   const [company, setCompany] = useState<Company | null>(null);
+  const [error, setError] = useState("");
   const router = useRouter();
 
-  useEffect(() => { api.companies.get(id).then(setCompany); }, [id]);
+  useEffect(() => {
+    api.companies.get(id).then(setCompany).catch(() => setError("No se pudo cargar la empresa."));
+  }, [id]);
 
+  if (error) return <div className="p-8 text-red-500">{error}</div>;
   if (!company) return <div className="p-8">Cargando...</div>;
 
   const handleSubmit = async (data: CompanyCreate) => {

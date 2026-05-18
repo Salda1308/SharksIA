@@ -16,9 +16,11 @@ export default function Dashboard() {
   }, [user, loading, router]);
 
   useEffect(() => {
-    api.companies.list().then(setCompanies);
-    api.designs.list().then(setDesigns);
-  }, []);
+    if (!loading && user) {
+      api.companies.list().then(setCompanies).catch(() => {});
+      api.designs.list().then(setDesigns).catch(() => {});
+    }
+  }, [user, loading]);
 
   return (
     <div className="max-w-5xl mx-auto p-8">
