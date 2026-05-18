@@ -2,10 +2,8 @@ import os
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 
-# Use plaintext for development (since bcrypt has issues on some systems)
-# In production, switch to argon2 or bcrypt
 _pwd_ctx = CryptContext(
-    schemes=["plaintext"],
+    schemes=["argon2"],
     deprecated="auto"
 )
 _SECRET = os.getenv("JWT_SECRET", "dev-secret-change-in-production")
