@@ -1,11 +1,16 @@
+import io
+import zipfile
+import shutil
 from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import FileResponse, StreamingResponse
 from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models import Company, Design, User
 from ..schemas import CarouselGenerateRequest, SlidesUpdateRequest, DesignOut
 from ..deps import get_current_user
 from core.ai import generate_content
+from core.renderer import render_carousel
 
 router = APIRouter()
 
@@ -35,6 +40,10 @@ def _brand_config_from_company(c: Company) -> dict:
             if (_company_dir(c.id) / "logo.svg").exists() else None,
         },
     }
+
+
+def _render_dir(design_id: str) -> Path:
+    return STORAGE_DIR / "tmp" / design_id
 
 
 def _design_out(d: Design) -> dict:
@@ -130,3 +139,90 @@ def delete_design(
     db.delete(d)
     db.commit()
     return {"ok": True}
+
+
+@router.post("/{design_id}/render")
+def render_design(
+    design_id: str,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    d = db.query(Design).filter(Design.id == design_id, Design.user_id == user.id).first()
+    if not d:
+        raise HTTPException(status_code=404, detail="Diseño no encontrado")
+
+    company = db.query(Company).filter(Company.id == d.company_id).first()
+    brand_config = _brand_config_from_company(company)
+    company_dir = _company_dir(company.id)
+    output_dir = _render_dir(design_id)
+
+    if output_dir.exists():
+        shutil.rmtree(output_dir)
+    output_dir.mkdir(parents=True)
+
+    render_carousel(d.slides, brand_config, company_dir, output_dir, FORMATS_DIR)
+
+    d.status = "rendered"
+    db.commit()
+    db.refresh(d)
+    return _design_out(d)
+
+
+@router.get("/{design_id}/export")
+def export_design(
+    design_id: str,
+    fmt: str = "pdf",
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    d = db.query(Design).filter(Design.id == design_id, Design.user_id == user.id).first()
+    if not d:
+        raise HTTPException(status_code=404, detail="Diseño no encontrado")
+
+    render_dir = _render_dir(design_id)
+    slides_dir = render_dir / "slides"
+
+    if fmt == "pdf":
+        pdf_path = render_dir / "carousel.pdf"
+        if not pdf_path.exists():
+            raise HTTPException(status_code=400, detail="Renderiza primero el diseño")
+        return FileResponse(str(pdf_path), media_type="application/pdf",
+                            filename=f"{design_id}.pdf")
+
+    if fmt == "svg":
+        svg_files = sorted(slides_dir.glob("*.svg")) if slides_dir.exists() else []
+        if not svg_files:
+            raise HTTPException(status_code=400, detail="No hay SVGs renderizados")
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as zf:
+            for f in svg_files:
+                zf.write(f, f.name)
+        buf.seek(0)
+        return StreamingResponse(
+            buf,
+            media_type="application/zip",
+            headers={"Content-Disposition": f'attachment; filename="{design_id}-svgs.zip"'},
+        )
+
+    if fmt == "jpg":
+        import cairosvg
+        from PIL import Image
+        svg_files = sorted(slides_dir.glob("*.svg")) if slides_dir.exists() else []
+        if not svg_files:
+            raise HTTPException(status_code=400, detail="No hay SVGs renderizados")
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as zf:
+            for svg_path in svg_files:
+                png_bytes = cairosvg.svg2png(url=str(svg_path))
+                img = Image.open(io.BytesIO(png_bytes))
+                jpg_buf = io.BytesIO()
+                img.convert("RGB").save(jpg_buf, format="JPEG", quality=92)
+                zf.writestr(svg_path.stem + ".jpg", jpg_buf.getvalue())
+        buf.seek(0)
+        return StreamingResponse(
+            buf,
+            media_type="application/zip",
+            headers={"Content-Disposition": f'attachment; filename="{design_id}-jpgs.zip"'},
+        )
+
+    raise HTTPException(status_code=400, detail="Formato no soportado: usa svg, pdf o jpg")
