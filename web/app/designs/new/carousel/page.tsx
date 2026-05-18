@@ -22,7 +22,9 @@ export default function NewCarouselPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => { api.companies.list().then(setCompanies).catch(() => {}); }, []);
+  useEffect(() => {
+    api.companies.list().then(setCompanies).catch(() => setError("No se pudieron cargar las empresas"));
+  }, []);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,8 +54,8 @@ export default function NewCarouselPage() {
           </select>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Tamaño</label>
+        <fieldset>
+          <legend className="block text-sm font-medium mb-1">Tamaño</legend>
           <div className="flex gap-2 flex-wrap">
             {SIZES.map(s => (
               <button key={s.label} type="button"
@@ -65,10 +67,10 @@ export default function NewCarouselPage() {
               </button>
             ))}
           </div>
-        </div>
+        </fieldset>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Modo</label>
+        <fieldset>
+          <legend className="block text-sm font-medium mb-1">Modo</legend>
           <div className="flex gap-3">
             {(["topic", "text"] as const).map(m => (
               <label key={m} className="flex items-center gap-2 cursor-pointer">
@@ -78,7 +80,7 @@ export default function NewCarouselPage() {
               </label>
             ))}
           </div>
-        </div>
+        </fieldset>
 
         <div>
           <label className="block text-sm font-medium mb-1">
