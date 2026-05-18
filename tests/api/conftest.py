@@ -1,7 +1,12 @@
+import os
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from api.models import Base
+
+# Set dummy API keys so image search routes don't return 503 in tests
+os.environ.setdefault("PEXELS_API_KEY", "test-pexels-key")
+os.environ.setdefault("PIXABAY_API_KEY", "test-pixabay-key")
 
 TEST_DB = "sqlite:///./storage/test.sqlite3"
 
