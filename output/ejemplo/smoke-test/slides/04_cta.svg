@@ -1,0 +1,24 @@
+<svg width="1080" height="1080" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1080" height="1080" fill="#1A1A2E"/>
+  <rect x="80" y="780" width="920" height="2" fill="#E94560" opacity="0.4"/>
+  <image href="assets/logo.svg" x="80" y="80" height="50" preserveAspectRatio="xMinYMid meet"/>
+  <text font-family="Georgia Bold" font-size="72" fill="#F8F8F8">
+    
+    
+    <tspan x="80" y="380">¿Listo para el</tspan>
+    
+    <tspan x="80" y="466">cambio?</tspan>
+    
+  </text>
+  
+  <rect x="80" y="572" width="60" height="5" fill="#E94560"/>
+  <text font-family="Arial" font-size="38" fill="#E94560">
+    
+    
+    <tspan x="80" y="652">Escríbenos en el link de</tspan>
+    
+    <tspan x="80" y="702">la bio</tspan>
+    
+  </text>
+  <text x="80" y="990" font-family="Arial" font-size="22" fill="#F8F8F8" opacity="0.4">Empresa Ejemplo</text>
+</svg>

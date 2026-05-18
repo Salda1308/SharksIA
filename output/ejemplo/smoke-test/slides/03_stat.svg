@@ -1,0 +1,16 @@
+<svg width="1080" height="1080" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1080" height="1080" fill="#F8F8F8"/>
+  <rect x="0" y="0" width="1080" height="8" fill="#E94560"/>
+  <image href="assets/logo.svg" x="80" y="60" height="38" preserveAspectRatio="xMinYMid meet"/>
+  <text x="540" y="540" font-family="Georgia Bold" font-size="200" fill="#1A1A2E" text-anchor="middle">87%</text>
+  <rect x="440" y="570" width="200" height="5" fill="#E94560"/>
+  <text font-family="Arial" font-size="36" fill="#2D2D2D" opacity="0.8">
+    
+    
+    <tspan x="540" y="650" text-anchor="middle">de los trabajadores remotos se</tspan>
+    
+    <tspan x="540" y="698" text-anchor="middle">sienten más productivos en casa</tspan>
+    
+  </text>
+  <text x="80" y="990" font-family="Arial" font-size="22" fill="#2D2D2D" opacity="0.4">Empresa Ejemplo</text>
+</svg>
