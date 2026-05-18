@@ -25,11 +25,14 @@ export default function ExportPanel({ designId, apiBase }: Props) {
         throw new Error(err.detail ?? "Error al exportar");
       }
       const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
+      a.href = objectUrl;
       a.download = `carousel-${designId}.${selected === "svg" || selected === "jpg" ? "zip" : selected}`;
+      document.body.appendChild(a);
       a.click();
-      URL.revokeObjectURL(a.href);
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 100);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Error al descargar");
     } finally { setDownloading(false); }

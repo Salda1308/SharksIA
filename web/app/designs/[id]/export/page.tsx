@@ -23,7 +23,7 @@ export default function ExportPage() {
             setDesign(rendered);
           } catch {
             setError("Error al renderizar el diseño.");
-            setDesign(d);
+            // Do NOT set design — keep user blocked so they can't export an unrendered design
           } finally {
             setRendering(false);
           }
