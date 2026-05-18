@@ -1,0 +1,23 @@
+company: "Empresa Ejemplo"
+ai_provider: ollama
+ollama_model: llama3.2
+
+brand:
+  style: minimal
+  colors:
+    primary: "#1A1A2E"
+    secondary: "#E94560"
+    background: "#F8F8F8"
+    text: "#2D2D2D"
+  fonts:
+    heading: "Georgia Bold"
+    body: "Arial"
+  logo: "assets/logo.svg"
+  design_context: |
+    Empresa de servicios digitales. Tono profesional pero cercano.
+    Prefiere layouts limpios con mucho espacio. Audiencia: empresarios
+    y emprendedores latinoamericanos entre 30-50 años.
+
+resources:
+  images: "assets/images/"
+  icons: "assets/icons/"
