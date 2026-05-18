@@ -1,0 +1,13 @@
+<svg width="1080" height="1080" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1080" height="1080" fill="{{ brand.colors.secondary }}"/>
+  <rect x="0" y="0" width="1080" height="200" fill="{{ brand.colors.primary }}"/>
+  <image href="{{ brand.logo }}" x="80" y="80" height="50" preserveAspectRatio="xMinYMid meet"/>
+  <text x="540" y="620" font-family="{{ brand.fonts.heading }}" font-size="220" fill="{{ brand.colors.primary }}" text-anchor="middle">{{ slide.number }}</text>
+  <text font-family="{{ brand.fonts.body }}" font-size="40" fill="{{ brand.colors.primary }}" opacity="0.9">
+    {% set lines = slide.label | wrap_text(28) %}
+    {% for line in lines %}
+    <tspan x="540" y="{{ 700 + loop.index0 * 52 }}" text-anchor="middle">{{ line }}</tspan>
+    {% endfor %}
+  </text>
+  <text x="80" y="990" font-family="{{ brand.fonts.body }}" font-size="22" fill="{{ brand.colors.primary }}" opacity="0.5">{{ company }}</text>
+</svg>

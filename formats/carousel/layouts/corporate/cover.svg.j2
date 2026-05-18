@@ -1,0 +1,24 @@
+<svg width="1080" height="1080" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1080" height="1080" fill="{{ brand.colors.background }}"/>
+  <rect x="120" y="120" width="840" height="840" fill="{{ brand.colors.primary }}" opacity="0.03" rx="4"/>
+  <rect x="120" y="120" width="840" height="2" fill="{{ brand.colors.secondary }}" opacity="0.4"/>
+  <rect x="120" y="958" width="840" height="2" fill="{{ brand.colors.secondary }}" opacity="0.4"/>
+  <image href="{{ brand.logo }}" x="120" y="160" height="44" preserveAspectRatio="xMinYMid meet"/>
+  <text font-family="{{ brand.fonts.heading }}" font-size="82" fill="{{ brand.colors.primary }}">
+    {% set lines = slide.title | wrap_text(15) %}
+    {% for line in lines %}
+    <tspan x="120" y="{{ 400 + loop.index0 * 96 }}">{{ line }}</tspan>
+    {% endfor %}
+  </text>
+  {% if slide.subtitle %}
+  {% set title_lines = slide.title | wrap_text(15) %}
+  <rect x="120" y="{{ 400 + (title_lines | length) * 96 + 20 }}" width="40" height="3" fill="{{ brand.colors.secondary }}"/>
+  <text font-family="{{ brand.fonts.body }}" font-size="34" fill="{{ brand.colors.text }}" opacity="0.65">
+    {% set lines = slide.subtitle | wrap_text(30) %}
+    {% for line in lines %}
+    <tspan x="120" y="{{ 400 + (title_lines | length) * 96 + 80 + loop.index0 * 44 }}">{{ line }}</tspan>
+    {% endfor %}
+  </text>
+  {% endif %}
+  <text x="120" y="920" font-family="{{ brand.fonts.body }}" font-size="22" fill="{{ brand.colors.text }}" opacity="0.4">{{ company }}</text>
+</svg>

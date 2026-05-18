@@ -1,0 +1,26 @@
+<svg width="1080" height="1080" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1080" height="1080" fill="{{ brand.colors.primary }}"/>
+  <rect x="0" y="0" width="10" height="1080" fill="{{ brand.colors.secondary }}"/>
+  <image href="{{ brand.logo }}" x="30" y="60" height="40" preserveAspectRatio="xMinYMid meet"/>
+  {% if slide.icon_path %}
+  <image href="{{ slide.icon_path }}" x="30" y="220" width="120" height="120" preserveAspectRatio="xMidYMid meet"/>
+  {% else %}
+  <rect x="30" y="220" width="120" height="120" fill="{{ brand.colors.secondary }}" opacity="0.3" rx="8"/>
+  <text x="90" y="295" font-family="{{ brand.fonts.body }}" font-size="14" fill="{{ brand.colors.secondary }}" text-anchor="middle">{{ slide.icon_hint }}</text>
+  {% endif %}
+  <text font-family="{{ brand.fonts.heading }}" font-size="64" fill="{{ brand.colors.background }}">
+    {% set lines = slide.heading | wrap_text(16) %}
+    {% for line in lines %}
+    <tspan x="30" y="{{ 420 + loop.index0 * 76 }}">{{ line }}</tspan>
+    {% endfor %}
+  </text>
+  {% set heading_lines = slide.heading | wrap_text(16) %}
+  <rect x="30" y="{{ 420 + (heading_lines | length) * 76 + 16 }}" width="60" height="6" fill="{{ brand.colors.secondary }}"/>
+  <text font-family="{{ brand.fonts.body }}" font-size="32" fill="{{ brand.colors.background }}" opacity="0.85">
+    {% set lines = slide.body | wrap_text(24) %}
+    {% for line in lines %}
+    <tspan x="30" y="{{ 420 + (heading_lines | length) * 76 + 90 + loop.index0 * 44 }}">{{ line }}</tspan>
+    {% endfor %}
+  </text>
+  <text x="30" y="990" font-family="{{ brand.fonts.body }}" font-size="20" fill="{{ brand.colors.background }}" opacity="0.3">{{ company }}</text>
+</svg>
