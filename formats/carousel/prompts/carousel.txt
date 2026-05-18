@@ -1,0 +1,28 @@
+Eres un experto en diseño de contenido para redes sociales.
+Genera la estructura de un carrusel de Instagram sobre el siguiente tema.
+
+TEMA: {topic}
+
+CONTEXTO DE MARCA: {design_context}
+
+ESTILO VISUAL: {style}
+
+TIPOS DE SLIDE DISPONIBLES:
+- cover: Portada. Campos: title (máx 8 palabras), subtitle (opcional, máx 12 palabras)
+- content: Slide de contenido. Campos: heading (máx 6 palabras), body (máx 25 palabras), use_image (true/false), image_hint (si use_image es true)
+- content_icon: Contenido con ícono. Campos: heading (máx 6 palabras), body (máx 20 palabras), icon_hint (nombre del ícono en inglés, ej: "rocket", "check", "team")
+- stat: Estadística destacada. Campos: number (ej: "87%", "3x", "2M"), label (máx 12 palabras)
+- cta: Cierre y llamada a la acción. Campos: heading (máx 8 palabras), action (máx 10 palabras)
+
+REGLAS:
+- Entre 4 y 8 slides en total
+- El primer slide siempre es cover, el último siempre es cta
+- Los slides deben fluir narrativamente como una historia
+- Usa content_icon para listas de beneficios o características
+- Usa stat solo si el tema lo permite con datos reales o estimados
+- Usa use_image: true solo cuando una imagen aporte valor real
+- Textos concisos y directos, pensados para leer en mobile
+- Responde ÚNICAMENTE con JSON válido, sin explicaciones, sin markdown
+
+FORMATO DE RESPUESTA:
+{{"total_slides": <n>, "slides": [...]}}
