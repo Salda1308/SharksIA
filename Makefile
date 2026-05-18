@@ -1,7 +1,18 @@
-DYLD := DYLD_LIBRARY_PATH=/opt/homebrew/lib
+.PHONY: dev api web test test-api
+
+dev:
+	@echo "Iniciando API y Web..."
+	uvicorn api.main:app --reload --port 8000 & \
+	cd web && npm run dev
+
+api:
+	uvicorn api.main:app --reload --port 8000
+
+web:
+	cd web && npm run dev
 
 test:
-	$(DYLD) python3 -m pytest -v
+	pytest tests/ -v
 
-run:
-	$(DYLD) python3 cli.py $(ARGS)
+test-api:
+	pytest tests/api/ -v

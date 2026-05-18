@@ -1,10 +1,17 @@
 import re
-from fastapi import APIRouter, Depends, HTTPException
+import io
+from pathlib import Path
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
+from PIL import Image
 from ..database import get_db
 from ..models import Company, User
 from ..schemas import CompanyCreate, CompanyUpdate, CompanyOut
 from ..deps import get_current_user
+
+BASE_DIR = Path(__file__).parent.parent.parent
+STORAGE_DIR = BASE_DIR / "storage"
 
 router = APIRouter()
 
@@ -79,3 +86,39 @@ def delete_company(
     db.delete(c)
     db.commit()
     return {"ok": True}
+
+
+@router.post("/{company_id}/logo")
+def upload_logo(
+    company_id: str,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    c = db.query(Company).filter(Company.id == company_id, Company.user_id == user.id).first()
+    if not c:
+        raise HTTPException(status_code=404, detail="Empresa no encontrada")
+
+    company_dir = STORAGE_DIR / "companies" / company_id
+    company_dir.mkdir(parents=True, exist_ok=True)
+
+    data = file.file.read()
+    ext = "svg" if (file.filename or "").endswith(".svg") else "png"
+    logo_path = company_dir / f"logo.{ext}"
+    logo_path.write_bytes(data)
+
+    c.logo_path = str(logo_path)
+    db.commit()
+    return {"logo_url": f"/api/v1/companies/{company_id}/logo"}
+
+
+@router.get("/{company_id}/logo")
+def get_logo(
+    company_id: str,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    c = db.query(Company).filter(Company.id == company_id, Company.user_id == user.id).first()
+    if not c or not c.logo_path:
+        raise HTTPException(status_code=404, detail="Logo no encontrado")
+    return FileResponse(c.logo_path)
