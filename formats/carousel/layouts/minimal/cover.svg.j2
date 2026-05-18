@@ -1,0 +1,21 @@
+<svg width="1080" height="1080" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1080" height="1080" fill="{{ brand.colors.background }}"/>
+  <rect x="80" y="200" width="80" height="6" fill="{{ brand.colors.secondary }}"/>
+  <image href="{{ brand.logo }}" x="80" y="80" height="50" preserveAspectRatio="xMinYMid meet"/>
+  <text font-family="{{ brand.fonts.heading }}" font-size="88" fill="{{ brand.colors.primary }}">
+    {% set lines = slide.title | wrap_text(16) %}
+    {% for line in lines %}
+    <tspan x="80" y="{{ 380 + loop.index0 * 100 }}">{{ line }}</tspan>
+    {% endfor %}
+  </text>
+  {% if slide.subtitle %}
+  <text font-family="{{ brand.fonts.body }}" font-size="36" fill="{{ brand.colors.text }}" opacity="0.7">
+    {% set title_lines = slide.title | wrap_text(16) %}
+    {% set lines = slide.subtitle | wrap_text(30) %}
+    {% for line in lines %}
+    <tspan x="80" y="{{ 380 + (title_lines | length) * 100 + 60 + loop.index0 * 44 }}">{{ line }}</tspan>
+    {% endfor %}
+  </text>
+  {% endif %}
+  <text x="80" y="990" font-family="{{ brand.fonts.body }}" font-size="22" fill="{{ brand.colors.text }}" opacity="0.4">{{ company }}</text>
+</svg>
