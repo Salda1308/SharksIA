@@ -80,6 +80,18 @@ def get_thumb(
     return FileResponse(a.path_thumb)
 
 
+@router.get("/assets/{asset_id}/full")
+def get_full(
+    asset_id: str,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    a = db.query(Asset).filter(Asset.id == asset_id, Asset.user_id == user.id).first()
+    if not a or not a.path_full:
+        raise HTTPException(status_code=404)
+    return FileResponse(a.path_full)
+
+
 @router.get("/images/search")
 def search_images(
     q: str,
