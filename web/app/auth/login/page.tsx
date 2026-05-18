@@ -4,6 +4,8 @@ import { api } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,19 +28,25 @@ export default function LoginPage() {
       <div className="bg-white p-8 rounded-xl shadow w-full max-w-sm">
         <h1 className="text-2xl font-bold mb-6">Iniciar sesión</h1>
         <form onSubmit={submit} className="space-y-4">
-          <input type="email" placeholder="Email" value={email}
-            onChange={e => setEmail(e.target.value)}
-            className="w-full border rounded-lg px-3 py-2" required />
-          <input type="password" placeholder="Contraseña" value={password}
-            onChange={e => setPassword(e.target.value)}
-            className="w-full border rounded-lg px-3 py-2" required />
+          <div>
+            <label htmlFor="email" className="sr-only">Email</label>
+            <input id="email" type="email" placeholder="Email" value={email}
+              onChange={e => setEmail(e.target.value)}
+              className="w-full border rounded-lg px-3 py-2" required />
+          </div>
+          <div>
+            <label htmlFor="password" className="sr-only">Contraseña</label>
+            <input id="password" type="password" placeholder="Contraseña" value={password}
+              onChange={e => setPassword(e.target.value)}
+              className="w-full border rounded-lg px-3 py-2" required />
+          </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <button type="submit"
             className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800">
             Entrar
           </button>
         </form>
-        <a href="http://localhost:8000/api/v1/auth/google"
+        <a href={`${API_URL}/api/v1/auth/google`}
           className="mt-3 w-full flex items-center justify-center border rounded-lg py-2 hover:bg-gray-50">
           Continuar con Google
         </a>

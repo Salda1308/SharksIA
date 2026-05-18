@@ -26,12 +26,24 @@ export default function RegisterPage() {
       <div className="bg-white p-8 rounded-xl shadow w-full max-w-sm">
         <h1 className="text-2xl font-bold mb-6">Crear cuenta</h1>
         <form onSubmit={submit} className="space-y-4">
-          {(["name", "email", "password"] as const).map(field => (
-            <input key={field} type={field === "password" ? "password" : field === "email" ? "email" : "text"}
-              placeholder={field === "name" ? "Nombre" : field === "email" ? "Email" : "Contraseña"}
-              value={form[field]} onChange={e => setForm({ ...form, [field]: e.target.value })}
+          <div>
+            <label htmlFor="name" className="sr-only">Nombre</label>
+            <input id="name" type="text" placeholder="Nombre" value={form.name}
+              onChange={e => setForm({ ...form, name: e.target.value })}
               className="w-full border rounded-lg px-3 py-2" required />
-          ))}
+          </div>
+          <div>
+            <label htmlFor="email" className="sr-only">Email</label>
+            <input id="email" type="email" placeholder="Email" value={form.email}
+              onChange={e => setForm({ ...form, email: e.target.value })}
+              className="w-full border rounded-lg px-3 py-2" required />
+          </div>
+          <div>
+            <label htmlFor="reg-password" className="sr-only">Contraseña</label>
+            <input id="reg-password" type="password" placeholder="Contraseña" value={form.password}
+              onChange={e => setForm({ ...form, password: e.target.value })}
+              className="w-full border rounded-lg px-3 py-2" required />
+          </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <button type="submit"
             className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800">
