@@ -107,16 +107,52 @@ def carousel(
 ```python
 if text:
     mode = "text"
-    content = _prompt_for_text()
+    company_dir = _resolve_company_interactive(company)   # primero empresa
+    content = _prompt_for_text()                          # luego texto
 elif topic:
     mode = "topic"
+    company_dir = _resolve_company(company)               # comportamiento actual
     content = topic
 else:
-    # ni --text ni topic: error claro
     raise typer.BadParameter("Provee un tema o usa --text para pegar un artículo.")
 ```
 
-### 4.3 Prompt interactivo `_prompt_for_text()`
+### 4.3 Selección interactiva de empresa `_resolve_company_interactive()`
+
+Se invoca solo en modo `--text`. Si `--company` ya fue pasado, lo usa directamente (mismo comportamiento actual). Si no, lista las empresas disponibles y pide al usuario que elija:
+
+```
+¿Para qué empresa generamos el carrusel?
+  1. ejemplo
+  2. acme-studio
+Selecciona (1-2):
+```
+
+```python
+def _resolve_company_interactive(company_name: str | None) -> Path:
+    if company_name:
+        return _resolve_company(company_name)   # reutiliza lógica existente
+
+    dirs = [d for d in sorted(COMPANIES_DIR.iterdir()) if d.is_dir()] \
+           if COMPANIES_DIR.exists() else []
+
+    if not dirs:
+        raise typer.BadParameter(f"Sin empresas configuradas. Agrega una en {COMPANIES_DIR}")
+    if len(dirs) == 1:
+        console.print(f"[dim]Empresa: {dirs[0].name}[/dim]")
+        return dirs[0]
+
+    console.print("\n[bold]¿Para qué empresa generamos el carrusel?[/bold]")
+    for i, d in enumerate(dirs, 1):
+        console.print(f"  {i}. {d.name}")
+
+    choice = typer.prompt("Selecciona", type=int)
+    if not 1 <= choice <= len(dirs):
+        raise typer.BadParameter("Opción inválida.")
+    return dirs[choice - 1]
+```
+
+### 4.4 Prompt interactivo de texto `_prompt_for_text()`
 
 ```python
 def _prompt_for_text() -> str:
@@ -127,7 +163,10 @@ def _prompt_for_text() -> str:
         if line == "" and lines and lines[-1] == "":
             break
         lines.append(line)
-    return "\n".join(lines).strip()
+    text = "\n".join(lines).strip()
+    if not text:
+        raise typer.BadParameter("El texto no puede estar vacío.")
+    return text
 ```
 
 Condición de cierre: dos líneas vacías consecutivas (estándar para entrada multilinea en terminal).
@@ -140,6 +179,8 @@ Condición de cierre: dos líneas vacías consecutivas (estándar para entrada m
 |-----------|----------------|
 | Ni `topic` ni `--text` | Error: "Provee un tema o usa --text" |
 | `--text` con `topic` también | `--text` tiene prioridad, ignora el topic |
+| `--text` sin `--company`, una sola empresa | Auto-selecciona, muestra nombre en pantalla |
+| `--text` sin `--company`, varias empresas | Pregunta interactivamente antes del texto |
 | Texto pegado vacío | Error: "El texto no puede estar vacío" |
 | IA devuelve JSON inválido | Reintento automático (mismo mecanismo existente, máx 3 intentos) |
 
@@ -148,8 +189,9 @@ Condición de cierre: dos líneas vacías consecutivas (estándar para entrada m
 ## 6. Impacto en Tests
 
 - `tests/test_ai.py`: actualizar firma de `generate_content` en todos los calls (agregar `mode="topic"`)
-- `tests/test_cli.py`: agregar test para `--text` con mock de `_prompt_for_text`
 - `tests/test_ai.py`: agregar test que verifica que `mode="text"` carga `carousel_text.txt`
+- `tests/test_cli.py`: agregar test para `--text` con mock de `_prompt_for_text` y `_resolve_company_interactive`
+- `tests/test_cli.py`: agregar test de selección interactiva de empresa cuando hay varias configuradas
 
 ---
 
