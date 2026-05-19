@@ -1,0 +1,41 @@
+# Secrets — NUNCA subir
+.env
+web/.env.local
+
+# Base de datos local
+storage/db.sqlite3
+
+# Archivos subidos por usuarios y renders temporales
+storage/uploads/*
+storage/tmp/*
+storage/companies/*
+!storage/uploads/.gitkeep
+!storage/tmp/.gitkeep
+!storage/companies/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+build/
+
+# Node
+web/node_modules/
+web/.next/
+web/out/
+
+# macOS
+.DS_Store
+**/.DS_Store
+formats/.DS_Store
+output/.DS_Store
+
+# Output generado por el CLI
+output/
+
+# IDE
+.vscode/
+.idea/
