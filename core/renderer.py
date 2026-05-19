@@ -1,7 +1,6 @@
 import io
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
-import cairosvg
 from pypdf import PdfWriter, PdfReader
 
 
@@ -51,6 +50,7 @@ def _resolve_assets(slide: dict, company_dir: Path) -> dict:
 
 
 def _generate_pdf(svg_paths: list, output_path: Path) -> None:
+    import cairosvg  # lazy import — requires native cairo library at runtime
     writer = PdfWriter()
     for svg_path in svg_paths:
         pdf_bytes = cairosvg.svg2pdf(url=str(svg_path))
