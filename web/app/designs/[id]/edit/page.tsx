@@ -85,7 +85,7 @@ export default function EditDesignPage() {
         <div>
           <SlidePreview
             svgUrl={design.status === "rendered"
-              ? `${API_BASE}/api/v1/designs/${id}/export?fmt=svg&slide=${currentIdx}`
+              ? `${API_BASE}/api/v1/designs/${id}/slides/${currentIdx}/preview`
               : null}
             loading={rendering}
           />

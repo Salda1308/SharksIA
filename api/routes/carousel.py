@@ -81,7 +81,7 @@ def generate_carousel(
         raise HTTPException(status_code=404, detail="Empresa no encontrada")
 
     brand_config = _brand_config_from_company(company)
-    result = generate_content(req.mode, req.content, brand_config, FORMATS_DIR)
+    result = generate_content(req.content, brand_config, FORMATS_DIR, mode=req.mode)
 
     design = Design(
         user_id=user.id,
@@ -166,6 +166,25 @@ def render_design(
     db.commit()
     db.refresh(d)
     return _design_out(d)
+
+
+@router.get("/{design_id}/slides/{slide_index}/preview")
+def preview_slide(
+    design_id: str,
+    slide_index: int,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    d = db.query(Design).filter(Design.id == design_id, Design.user_id == user.id).first()
+    if not d:
+        raise HTTPException(status_code=404, detail="Diseño no encontrado")
+
+    slides_dir = _render_dir(design_id) / "slides"
+    svg_files = sorted(slides_dir.glob("*.svg")) if slides_dir.exists() else []
+    if slide_index >= len(svg_files):
+        raise HTTPException(status_code=404, detail="Slide no renderizado")
+
+    return FileResponse(str(svg_files[slide_index]), media_type="image/svg+xml")
 
 
 @router.get("/{design_id}/export")
